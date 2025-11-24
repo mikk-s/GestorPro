@@ -1,57 +1,41 @@
 <?php
-// Certifica-se de que a sessão foi iniciada
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-// Inclui o helper de URL, como você já tinha
-include_once("helpers/url.php");
+if (session_status() == PHP_SESSION_NONE) { session_start(); }
+// Base URL manual para garantir links corretos
+$BASE_URL = "http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['REQUEST_URI'].'?'). '/';
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EventosHorto</title>
-  
-  <link rel="stylesheet" href="<?= $BASE_URL ?>css/style.css">
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestorPro - Gestão Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <header class="header">
     <div class="container">
-      <a href="index.php" class="logo">
-          <img src="img/logo_sesi.png" alt="Logo Sesi" class="logo-img">
-          <img src="img/logo_senai.png" alt="Logo Senai" class="logo-img">
-      </a>
-      <nav class="nav">
-          <a href="eventos.php">Eventos</a>
-          
-          <?php if (isset($_SESSION['usuario_id'])): ?>
-              <a href="meus_ingressos.php">Meus Ingressos</a>
+        <nav class="navbar">
+            <a href="index.php" class="logo">
+                <img src="img/logo.png" alt="GestorPro Soluções" class="logo-img">
+            </a>
 
-              <?php if (isset($_SESSION['perm'])): ?>
-                  <?php if ($_SESSION['perm'] == 'Administrador'): ?>
-                      <a href="dashboard.php">Dashboard Admin</a>
-                  <?php endif; ?>
-
-                  <?php if ($_SESSION['perm'] == 'Organizador'): ?>
-                      <a href="cadastrar_evento.php">Cadastrar Evento</a>
-                      <a href="dashboard_organizador.php">Dashboard Organizador</a>
-                  <?php endif; ?>
-              <?php endif; ?>
-
-              <a href="deslogar.php">Sair</a>
-
-          <?php else: ?>
-              <a href="login.php">Login</a>
-              <a href="cadastro.php">Cadastro</a>
-          <?php endif; ?>
-      </nav>
+            <div class="nav-links">
+                <?php if (isset($_SESSION['usuario_id'])): ?>
+                    <a href="dashboard.php">Dashboard</a>
+                    <a href="gerenciar_usuarios.php">Usuários</a>
+                    <div style="width: 1px; height: 20px; background: #E2E8F0;"></div>
+                    <span>Olá, <strong><?= explode(' ', $_SESSION['usuario'])[0] ?></strong></span>
+                    <a href="deslogar.php" style="color: #EF4444;">Sair</a>
+                <?php else: ?>
+                    <a href="index.php#funcionalidades">Funcionalidades</a>
+                    <a href="index.php#tecnologia">Tecnologia</a>
+                    <a href="index.php#equipe">A Equipe</a>
+                    <a href="login.php" class="btn-primary"><i class="fas fa-play-circle"></i> Live Demo</a>
+                <?php endif; ?>
+            </div>
+        </nav>
     </div>
 </header>
-</body>
-</html>

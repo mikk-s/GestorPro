@@ -1,16 +1,9 @@
-
 <?php 
 session_start();
-ob_start();
-
-
 require "conexao.php";
-include_once("templates/header.php");
 
-
-if (isset($_SESSION["usuario"])) {
-    $_SESSION['login_error'] = "Já logou. Redirecionando...";
-    header("Location: index.php");
+if (isset($_SESSION["usuario_id"])) {
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -18,64 +11,66 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST["login"];
     $senha = $_POST["senha"];
 
-    $sql = "SELECT * FROM usuarios WHERE email = :email";
-    $stmt = $conn->prepare($sql);
+    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :email");
     $stmt->bindParam(":email", $email);
     $stmt->execute();
-
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($usuario) {
-        if (password_verify($senha, $usuario["senha"])) {
-            // ** ATUALIZAÇÃO IMPORTANTE AQUI **
-            $_SESSION["usuario_id"] = $usuario['id']; // <-- ADICIONADO
-            $_SESSION["usuario"] = $usuario['nome'];
-            $_SESSION["perm"] = $usuario['perm']; 
-    
-            header("Location: index.php"); // Redirecionar para o index é mais comum após o login
-            exit();
-        } else {
-            $_SESSION["erro"] = "Senha incorreta.";
-            header("Location: login.php");
-            exit();
-        }
-    } else {
-        $_SESSION["erro"] = "Usuário não encontrado.";
-        header("Location: login.php");
+
+    if ($usuario && password_verify($senha, $usuario["senha"])) {
+        $_SESSION["usuario_id"] = $usuario['id'];
+        $_SESSION["usuario"] = $usuario['nome'];
+        $_SESSION["perm"] = $usuario['perm']; 
+        header("Location: dashboard.php");
         exit();
+    } else {
+        $erro = "Credenciais inválidas.";
     }
 }
-
-
 ?>
-<link rel="stylesheet" href="css/style.css">
-<main class="login-form-page">
-    <div class="login-split-container">
-        <div class="login-image-side" style="background-image: url('img/essa.jpg');">
-             
-        </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GestorPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
 
-        <div class="login-form-side">
-            <div class="form-card">
-                <h2>Login</h2>
-                <?php
-                if (isset($_SESSION["erro"])) {
-                    echo "<script>alert('{$_SESSION["erro"]}');</script>";
-                    unset($_SESSION["erro"]);
-                }
-                ?>
-                <form method="POST">
-                    <label for="login">Login:</label>
-                    <input type="text" id="login" name="login" required>
-                    
-                    <label for="senha">Senha:</label>
-                    <input type="password" id="senha" name="senha" required>
-                    
-                    <button type="submit" class="submit-button">Entrar</button>
-                </form>
-                <p class="secondary-action">
-                    Não tem uma conta? <a href="cadastro.php">Cadastre-se</a>
-                </p>
-            </div>
+    <div class="login-card">
+        <div class="logo" style="justify-content: center; margin-bottom: 2rem;">
+            <div class="logo-icon">G</div>
+            GestorPro
         </div>
+        
+        <h2 style="margin-bottom: 10px;">Bem-vindo de volta</h2>
+        <p style="color: var(--secondary-color); margin-bottom: 30px;">Acesse seu painel de controle</p>
+
+        <?php if (isset($erro)): ?>
+            <div style="background: #FEE2E2; color: #EF4444; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
+                <?= $erro ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>E-mail Corporativo</label>
+                <input type="email" name="login" class="form-input" placeholder="ex: admin@gestorpro.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" class="form-input" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer;">Entrar no Sistema</button>
+        </form>
+
+        <p style="margin-top: 20px; font-size: 0.9rem;">
+            <a href="cadastro.php" style="color: var(--primary-color);">Criar nova conta</a>
+        </p>
     </div>
-</main>
+
+</body>
+</html>

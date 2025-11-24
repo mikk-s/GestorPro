@@ -1,129 +1,149 @@
-<?php
-session_start();
-require_once 'conexao.php';
-include_once("helpers/url.php");
-
-try {
-    // Busca 4 eventos para o carrossel principal (destaques)
-    $stmt_featured = $conn->query(
-        "SELECT id, nome, data, local, imagem 
-         FROM eventos 
-         WHERE data > NOW() AND imagem IS NOT NULL AND imagem != '' 
-         ORDER BY data ASC 
-         LIMIT 4"
-    );
-    $eventos_destaque = $stmt_featured->fetchAll(PDO::FETCH_ASSOC);
-
-    // Busca 8 eventos para o carrossel secundário (próximos eventos)
-    $stmt_upcoming = $conn->query(
-        "SELECT eventos.*, COALESCE(SUM(inscricoes.quantidade), 0) AS inscritos 
-         FROM eventos 
-         LEFT JOIN inscricoes ON eventos.id = inscricoes.id_evento
-         WHERE eventos.data > NOW()
-         GROUP BY eventos.id 
-         ORDER BY data ASC 
-         LIMIT 8"
-    );
-    $eventos_proximos = $stmt_upcoming->fetchAll(PDO::FETCH_ASSOC);
-
-} catch(PDOException $e) {
-    $eventos_destaque = [];
-    $eventos_proximos = [];
-}
-
-include_once("templates/header.php");
-?>
+<?php include_once("templates/header.php"); ?>
 
 <main>
-    <section id="main-carousel" class="splide" aria-label="Eventos em destaque">
-        <div class="splide__track">
-            <ul class="splide__list">
-                <?php foreach ($eventos_destaque as $evento): 
-                    $data_formatada = (new DateTime($evento['data']))->format('d/m/Y, H:i');
-                ?>
-                <li class="splide__slide" 
-                    data-title="<?= htmlspecialchars($evento['nome']) ?>" 
-                    data-date="<?= $data_formatada ?>"
-                    data-location="<?= htmlspecialchars($evento['local']) ?>"
-                    data-link="adquirir_ingresso.php?id_evento=<?= $evento['id'] ?>">
-                    <div class="main-carousel-image-container">
-                        <img src="<?= $BASE_URL . htmlspecialchars($evento['imagem']) ?>" alt="<?= htmlspecialchars($evento['nome']) ?>">
-                    </div>
-                </li>
-                <?php endforeach; ?>
-
-                <li class="splide__slide" 
-                    data-type="banner"
-                    data-title="Encontre os Melhores Eventos" 
-                    data-link="eventos.php">
-                    <div class="main-carousel-image-container final-slide-banner">
-                         <h2>Encontre os Melhores Eventos</h2>
-                         <p>Participe de palestras, workshops e muito mais!</p>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </section>
-
-    <section id="carousel-event-info" class="container">
-        <a id="event-info-link" href="#">
-            <h2 id="event-info-title"></h2>
-            <p>
-                <span id="event-info-date"></span>
-                <span id="event-info-location"></span>
-            </p>
-        </a>
-    </section>
-
-    <section class="search-and-filter-section" style="padding: 2rem 1rem;">
-         <div class="container">
-            <form action="eventos.php" method="GET">
-                <div class="search-bar">
-                    <input type="search" name="search_term" placeholder="Busque por shows, palestras, workshops...">
-                    <button type="submit">Pesquisar</button>
-                </div>
-                <div class="filters-container">
-                    <div class="filter-group">
-                        <label for="event-origin">Origem:</label>
-                        <select id="event-origin" name="origem">
-                            <option value="todos">Todos</option>
-                            <option value="SESI">SESI</option>
-                            <option value="SENAI">SENAI</option>
-                        </select>
-                    </div>
-                    <div class="filter-group date-filter-group">
-                        <label for="data_inicio">Período:</label>
-                        <input type="date" name="data_inicio" id="data_inicio" title="Data de início">
-                        <span>até</span>
-                        <input type="date" name="data_fim" id="data_fim" title="Data final">
-                    </div>
-                </div>
-            </form>
-        </div>
-    </section>
-    
-    <div class="container" style="padding: 40px 15px;">
-        <h2 style="text-align: center; margin-bottom: 30px;">Próximos Eventos</h2>
-        <section id="secondary-carousel" class="splide" aria-label="Próximos eventos">
-            <div class="splide__track">
-                <ul class="splide__list">
-                    <?php foreach ($eventos_proximos as $evento): ?>
-                    <li class="splide__slide">
-                        <?php 
-                            $vagas_restantes = ($evento['max_pessoas'] > 0) ? $evento['max_pessoas'] - $evento['inscritos'] : PHP_INT_MAX;
-                            $data_formatada = (new DateTime($evento['data']))->format('d/m/Y, H:i');
-                            $usuario_logado = isset($_SESSION['usuario_id']);
-                            $usuario_inscrito = false;
-                            include 'templates/event_card.php'; 
-                        ?>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
+<section class="container hero">
+        <div class="hero-content">
+            <span class="tag-pill">🚀 TCC - Curso Técnico de Desenvolvimento</span>
+            
+            <h1>Sua Gestão,<br><span class="gradient-text">Simplificada.</span></h1>
+            
+            <p>O <strong>GestorPro</strong> é a solução definitiva para Pequenas e Médias Empresas. Unificamos controle de estoque, gestão de usuários e relatórios em uma interface limpa e intuitiva.</p>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;">
+                <?php if (!isset($_SESSION['usuario_id'])): ?>
+                    <a href="login.php" class="btn-primary">Acessar Sistema</a>
+                    <a href="#funcionalidades" style="padding: 12px 28px; border: 1px solid #E2E8F0; border-radius: 50px; color: var(--text-dark); font-weight: 600;">Saber Mais</a>
+                <?php else: ?>
+                    <a href="dashboard.php" class="btn-primary">Ir para Dashboard</a>
+                <?php endif; ?>
             </div>
-        </section>
-    </div>
+
+            <div style="display: flex; align-items: center; gap: 15px; font-size: 0.9rem; color: var(--secondary-color); flex-wrap: wrap;">
+                <span><i class="fas fa-check-circle" style="color: #16A34A;"></i> Login Seguro</span>
+                <span><i class="fas fa-check-circle" style="color: #16A34A;"></i> Dados em Nuvem</span>
+                <span><i class="fas fa-check-circle" style="color: #16A34A;"></i> 100% Responsivo</span>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <div style="position: absolute; top: -20px; right: -20px; width: 100%; height: 100%; background: linear-gradient(135deg, #E0E7FF 0%, #F3F4F6 100%); border-radius: 20px; z-index: -1;"></div>
+            
+            <img src="img/width_511.webp" alt="Interface do Sistema" class="hero-card-img">
+
+            <div class="floating-card card-crescimento">
+                <div class="icon-box-sm success"><i class="fas fa-chart-line"></i></div>
+                <div>
+                    <span>Crescimento Mensal</span>
+                    <strong>+127%</strong>
+                </div>
+            </div>
+
+            <div class="floating-card card-estoque">
+                <div class="icon-box-sm info"><i class="fas fa-box"></i></div>
+                <div>
+                    <span>Estoque Atualizado</span>
+                    <strong>Sincronizado</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="funcionalidades" class="container">
+        <div class="section-title">
+            <h2>Tudo o que você precisa</h2>
+            <p>Desenvolvemos as ferramentas essenciais para que gestores parem de perder tempo com planilhas e foquem no crescimento.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                <h3>Dashboard Inteligente</h3>
+                <p>Tenha uma visão 360º do seu negócio com gráficos em tempo real sobre vendas, estoque e novos usuários.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-box"><i class="fas fa-users-cog"></i></div>
+                <h3>Gestão de Acesso</h3>
+                <p>Controle total sobre quem acessa o quê. Níveis de permissão para Administradores, Organizadores e Visitantes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-box"><i class="fas fa-box-open"></i></div>
+                <h3>Controle de Estoque</h3>
+                <p>Nunca mais perca vendas por falta de produto. O GestorPro avisa quando o estoque está baixo.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-box"><i class="fas fa-mobile-alt"></i></div>
+                <h3>Acesso Mobile</h3>
+                <p>O sistema foi desenhado para funcionar perfeitamente no seu celular, tablet ou computador.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="tecnologia" class="tech-section">
+        <div class="container">
+            <h2 style="margin-bottom: 20px;">Construído com Tecnologia Moderna</h2>
+            <p style="color: #94A3B8; max-width: 600px; margin: 0 auto;">Utilizamos uma stack robusta e de mercado para garantir performance e segurança.</p>
+            
+            <div class="tech-grid">
+                <div class="tech-item"><i class="fab fa-php"></i> PHP 8</div>
+                <div class="tech-item"><i class="fas fa-database"></i> MySQL</div>
+                <div class="tech-item"><i class="fab fa-html5"></i> HTML5</div>
+                <div class="tech-item"><i class="fab fa-css3-alt"></i> CSS3</div>
+                <div class="tech-item"><i class="fab fa-js"></i> JavaScript</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="equipe" class="container">
+        <div class="section-title">
+            <h2>Quem Fez Acontecer</h2>
+            <p>Projeto desenvolvido com dedicação pelos alunos do curso técnico.</p>
+        </div>
+
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="img/placeholder.jpg" alt="Aluno 1">
+                <h4>Nome do Aluno</h4>
+                <span>Fullstack Developer</span>
+            </div>
+            <div class="team-member">
+                <img src="img/placeholder.jpg" alt="Aluno 2">
+                <h4>Nome do Aluno</h4>
+                <span>Frontend & UI</span>
+            </div>
+            <div class="team-member">
+                <img src="img/placeholder.jpg" alt="Aluno 3">
+                <h4>Nome do Aluno</h4>
+                <span>Banco de Dados</span>
+            </div>
+             <div class="team-member">
+                <img src="img/placeholder.jpg" alt="Aluno 4">
+                <h4>Nome do Aluno</h4>
+                <span>Documentação</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="container" style="padding-bottom: 80px;">
+        <div style="background: var(--primary-color); border-radius: 20px; padding: 60px 40px; text-align: center; color: white; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);"></div>
+            
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px; position: relative; z-index: 2;">Pronto para testar?</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9; position: relative; z-index: 2;">O GestorPro é open-source e acadêmico. Acesse a demonstração agora mesmo.</p>
+            
+            <a href="login.php" style="background: white; color: var(--primary-color); padding: 15px 40px; border-radius: 50px; font-weight: 700; font-size: 1.1rem; display: inline-block; position: relative; z-index: 2; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                Acessar Demonstração <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+            </a>
+        </div>
+    </section>
 </main>
 
-<?php
-include_once("templates/footer.php");
-?>
+<footer>
+    <div class="container">
+        <p>&copy; 2025 GestorPro - Trabalho de Conclusão de Curso.</p>
+        <p style="font-size: 0.85rem; margin-top: 10px;">Desenvolvido para fins educacionais.</p>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>
