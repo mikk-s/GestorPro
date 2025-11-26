@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div class="login-card">
         <div class="logo" style="justify-content: center; margin-bottom: 2rem;">
-            <div class="logo-icon">G</div>
+              <img src="img/logo.png" alt="GestorPro Soluções" class="logo-img">
             GestorPro
         </div>
         

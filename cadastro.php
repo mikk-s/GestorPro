@@ -3,91 +3,56 @@ require "conexao.php";
 session_start(); 
  
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = $_POST["login"];
+    $email = $_POST["email"];
     $senha = $_POST["senha"];
-    $nome = $_POST["nome"];
-    // NOVO CAMPO: Captura a permissão do formulário
-    $perm = $_POST["perm"];
+    $empresa = $_POST["empresa"];
 
-    // Validação para garantir que a permissão seja válida
-    if (!in_array($perm, ['Visitante', 'Organizador'])) {
-        $_SESSION["erro"] = "Tipo de permissão inválido.";
-        header("Location: cadastro.php");
-        exit();
-    }
-
-    $checkSql = "SELECT COUNT(*) FROM usuarios WHERE email = :email";
-    $checkStmt = $conn->prepare($checkSql);
-    $checkStmt->bindParam(":email", $email);
-    $checkStmt->execute();
+    // Verifica se já existe
+    $check = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
+    $check->execute([$email]);
     
-    if ($checkStmt->fetchColumn() > 0) {
-        $_SESSION["erro"] = "Este email já está em uso.";
-        header("Location: cadastro.php");
-        exit();
-    }
-
-    $senhaCriptografada = password_hash($senha, PASSWORD_DEFAULT);
-
-    // ATUALIZADO: Inclui a permissão (perm) no INSERT
-    $sql = "INSERT INTO usuarios (nome, email, senha, perm) VALUES (:nome, :email, :senha, :perm)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(":nome", $nome);
-    $stmt->bindParam(":email", $email);
-    $stmt->bindParam(":senha", $senhaCriptografada);
-    $stmt->bindParam(":perm", $perm);
-
-    if ($stmt->execute()) {
-        $_SESSION["erro"] = "Usuario criado com sucesso! Por favor, faça o login.";
-        header("Location: login.php");
-        exit();
+    if ($check->fetchColumn()) {
+        $erro = "E-mail já cadastrado.";
     } else {
-        $_SESSION["erro"] = "Erro ao realizar cadastro.";
-        header("Location: cadastro.php");
-        exit();
+        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+        $sql = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt->execute([$empresa, $email, $senhaHash])) {
+            $_SESSION['msg'] = "Empresa cadastrada! Faça login.";
+            header("Location: login.php");
+            exit();
+        }
     }
-}
-
-include_once("templates/header.php");
-
-if (isset($_SESSION["erro"])) {
-    echo "<script>alert('{$_SESSION["erro"]}');</script>";
-    unset($_SESSION["erro"]);
 }
 ?>
-
-<link rel="stylesheet" href="css/style.css">
-
-<main class="login-form-page">
-    <div class="login-split-container">
-        <div class="login-image-side" style="background-image: url('img/essa.jpg');">
-        </div>
-
-        <div class="login-form-side">
-            <div class="form-card">
-                <h2>Cadastro</h2>
-                <form method="post">
-                    <label for="nome">Nome:</label>
-                    <input type="text" name="nome" placeholder="Seu nome completo" required>
-                    
-                    <label for="login">Login (Email):</label>
-                    <input type="email" name="login" placeholder="seu@email.com" required>
-                    
-                    <label for="senha">Senha:</label>
-                    <input type="password" name="senha" placeholder="Crie uma senha" required>
-                    
-                    <label for="perm">Tipo de Conta:</label>
-                    <select id="perm" name="perm" required>
-                        <option value="Visitante">Visitante (Quero participar dos eventos)</option>
-                        <option value="Organizador">Organizador (Quero criar eventos)</option>
-                    </select>
-
-                    <button type="submit" class="submit-button">Cadastrar</button>
-                </form>
-                <p class="secondary-action">
-                    Já tem uma conta? <a href="login.php">Fazer Login</a>
-                </p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Empresa - GestorPro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <h2>Registrar Empresa</h2>
+        <?php if (isset($erro)) echo "<p style='color:red'>$erro</p>"; ?>
+        <form method="post">
+            <div class="form-group">
+                <label>Nome da Empresa</label>
+                <input type="text" name="empresa" class="form-input" required>
             </div>
-        </div>
+            <div class="form-group">
+                <label>E-mail Corporativo</label>
+                <input type="email" name="email" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" class="form-input" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%">Criar Conta</button>
+        </form>
+        <p style="margin-top:15px"><a href="login.php">Já tenho conta</a></p>
     </div>
-</main>
+</body>
+</html>

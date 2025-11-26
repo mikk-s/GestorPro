@@ -3,11 +3,11 @@
 <main>
 <section class="container hero">
         <div class="hero-content">
-            <span class="tag-pill">🚀 TCC - Curso Técnico de Desenvolvimento</span>
+            <span class="tag-pill">🚀 TCC - Trabalho de Conclusão de Curso</span>
             
             <h1>Sua Gestão,<br><span class="gradient-text">Simplificada.</span></h1>
             
-            <p>O <strong>GestorPro</strong> é a solução definitiva para Pequenas e Médias Empresas. Unificamos controle de estoque, gestão de usuários e relatórios em uma interface limpa e intuitiva.</p>
+            <p>O <strong>GestorPro</strong> é a solução definitiva para Empresas que sofrem com a Gestão de produtos. Unificamos controle de estoque, gestão de contratos e relatórios em uma interface limpa e intuitiva.</p>
             
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;">
                 <?php if (!isset($_SESSION['usuario_id'])): ?>
@@ -60,11 +60,7 @@
                 <h3>Dashboard Inteligente</h3>
                 <p>Tenha uma visão 360º do seu negócio com gráficos em tempo real sobre vendas, estoque e novos usuários.</p>
             </div>
-            <div class="feature-card">
-                <div class="icon-box"><i class="fas fa-users-cog"></i></div>
-                <h3>Gestão de Acesso</h3>
-                <p>Controle total sobre quem acessa o quê. Níveis de permissão para Administradores, Organizadores e Visitantes.</p>
-            </div>
+           
             <div class="feature-card">
                 <div class="icon-box"><i class="fas fa-box-open"></i></div>
                 <h3>Controle de Estoque</h3>
@@ -76,6 +72,7 @@
                 <p>O sistema foi desenhado para funcionar perfeitamente no seu celular, tablet ou computador.</p>
             </div>
         </div>
+        <br><br><br>
     </section>
 
     <section id="tecnologia" class="tech-section">
@@ -95,32 +92,40 @@
 
     <section id="equipe" class="container">
         <div class="section-title">
+            <br>
+            <br>
             <h2>Quem Fez Acontecer</h2>
-            <p>Projeto desenvolvido com dedicação pelos alunos do curso técnico.</p>
+            <p>Projeto desenvolvido com dedicação para resolver o seu problema.</p>
         </div>
 
         <div class="team-grid">
             <div class="team-member">
                 <img src="img/placeholder.jpg" alt="Aluno 1">
-                <h4>Nome do Aluno</h4>
+                <h4>Miguel Farnese</h4>
                 <span>Fullstack Developer</span>
             </div>
             <div class="team-member">
                 <img src="img/placeholder.jpg" alt="Aluno 2">
-                <h4>Nome do Aluno</h4>
+                <h4>Pablo Faria</h4>
                 <span>Frontend & UI</span>
             </div>
             <div class="team-member">
                 <img src="img/placeholder.jpg" alt="Aluno 3">
-                <h4>Nome do Aluno</h4>
+                <h4>Eduarda Ayandra</h4>
                 <span>Banco de Dados</span>
             </div>
              <div class="team-member">
                 <img src="img/placeholder.jpg" alt="Aluno 4">
-                <h4>Nome do Aluno</h4>
+                <h4>Iran Trindade</h4>
+                <span>Documentação</span>
+            </div>
+               <div class="team-member">
+                <img src="img/placeholder.jpg" alt="Aluno 5">
+                <h4>Sophia Teixeira</h4>
                 <span>Documentação</span>
             </div>
         </div>
+        <br><br>
     </section>
 
     <section class="container" style="padding-bottom: 80px;">

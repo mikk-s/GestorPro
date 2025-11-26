@@ -24,9 +24,10 @@ $BASE_URL = "http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['REQUEST_URI'].'?
 
             <div class="nav-links">
                 <?php if (isset($_SESSION['usuario_id'])): ?>
-                    <a href="dashboard.php">Dashboard</a>
-                    <a href="gerenciar_usuarios.php">Usuários</a>
-                    <div style="width: 1px; height: 20px; background: #E2E8F0;"></div>
+                      <a href="index.php#funcionalidades">Funcionalidades</a>
+                    <a href="index.php#tecnologia">Tecnologia</a>
+                    <a href="index.php#equipe">A Equipe</a>
+             
                     <span>Olá, <strong><?= explode(' ', $_SESSION['usuario'])[0] ?></strong></span>
                     <a href="deslogar.php" style="color: #EF4444;">Sair</a>
                 <?php else: ?>
